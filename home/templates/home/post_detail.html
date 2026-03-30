@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Post by {{ post.user.username }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #fafafa;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Post container */
+        .post-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+        }
+
+        .post-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .post-header .username {
+            font-weight: 600;
+            margin-left: 12px;
+            font-size: 1rem;
+        }
+
+        /* Media (images/videos) */
+        .post-media img,
+        .post-media video {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            display: block;
+            border-radius: 10px 10px 0 0;
+            background-color: #f0f0f0;
+        }
+
+        /* Actions (like, comment, share) */
+        .post-actions {
+            padding: 10px 15px;
+            display: flex;
+            gap: 10px;
+            font-size: 1.2rem;
+            align-items: center;
+        }
+
+        .post-actions button,
+        .post-actions a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Caption */
+        .post-caption {
+            padding: 12px 15px;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        /* Share modal buttons */
+        .modal-body .btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .modal-body .btn i {
+            font-size: 1.1rem;
+        }
+        .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+
+    .bottom-nav a {
+      color: black;
+      text-decoration: none;
+      font-size: 1.rem;
+    }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-3 mb-5">
+
+        <div class="post-container">
+            <!-- Header -->
+            <div class="post-header">
+                <img src="{{ post.user.profile_image.url }}" alt="Profile">
+                <span class="username">{{ post.user.username }}</span>
+            </div>
+
+            <!-- Media -->
+            <div class="post-media">
+                {% if post.images.exists %}
+                    {% for img in post.images.all %}
+                        <img src="{{ img.image.url }}">
+                    {% endfor %}
+                {% elif post.videos.exists %}
+                    {% for vid in post.videos.all %}
+                        <video controls>
+                            <source src="{{ vid.video.url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Actions -->
+            <div class="post-actions">
+                <!-- Like -->
+                <button class="btn btn-light btn-sm like-btn" data-post-id="{{ post.id }}">
+                    {% if post.is_liked %}
+                        <i class="fa-solid fa-heart text-danger"></i>
+                    {% else %}
+                        <i class="fa-regular fa-heart"></i>
+                    {% endif %}
+                    <span class="like-count">{{ post.likes.count }}</span>
+                </button>
+
+                <!-- Comment -->
+                <a href="/home/comment/{{ post.id }}" class="btn btn-light btn-sm">
+                    <i class="fa-regular fa-comment"></i> {{ post.comments.count }} Comment
+                </a>
+
+                <!-- Share -->
+                <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#shareModal{{ post.id }}">
+                    <i class="fa-solid fa-share"></i> Share
+                </button>
+            </div>
+
+            <!-- Caption -->
+            <div class="post-caption">
+                <strong>{{ post.user.username }}</strong> {{ post.title }}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Share Modal -->
+    <div class="modal fade" id="shareModal{{ post.id }}" tabindex="-1"
+        aria-labelledby="shareModalLabel{{ post.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="shareModalLabel{{ post.id }}">Share Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- Copy Link -->
+                    <button class="btn btn-light w-100 mb-2"
+                        onclick="copyLink('{{ request.build_absolute_uri }}')">
+                        <i class="fa-solid fa-link"></i> Copy Link
+                    </button>
+
+                    <!-- WhatsApp -->
+                    <a class="btn btn-success w-100 mb-2 text-white"
+                        href="https://wa.me/?text={{ request.build_absolute_uri }}"
+                        target="_blank">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                    </a>
+
+                    <!-- Twitter -->
+                    <a class="btn btn-info w-100 mb-2 text-white"
+                        href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ post.title|urlencode }}"
+                        target="_blank">
+                        <i class="fa-brands fa-twitter"></i> Twitter
+                    </a>
+
+                    <!-- Facebook -->
+                    <a class="btn btn-primary w-100 mb-2"
+                        href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
+                        target="_blank">
+                        <i class="fa-brands fa-facebook"></i> Facebook
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="bottom-nav d-flex justify-content-around align-items-center d-md-none">
+
+    <a href="/home" class="text-dark text-center">
+      <i class="fa-solid fa-house fs-5"></i>
+    </a>
+
+    <a href="/home/search" class="text-dark text-center">
+      <i class="fa-solid fa-magnifying-glass fs-5"></i>
+    </a>
+
+    <a href="/home/post/" class="text-dark text-center">
+      <i class="fa-solid fa-square-plus fs-5"></i>
+    </a>
+
+    <a href="/home/request" class="text-dark text-center">
+      <i class="fa-regular fa-heart fs-5"></i>
+    </a>
+
+    <a href="/home/profile/{{ user.username }}" class="text-dark text-center">
+      <i class="fa-regular fa-user fs-5"></i>
+    </a>
+
+  </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // CSRF token
+        function getCSRFToken() {
+            let name = "csrftoken=";
+            let cookies = document.cookie.split(";");
+            for (let c of cookies) {
+                c = c.trim();
+                if (c.startsWith(name)) {
+                    return c.substring(name.length);
+                }
+            }
+        }
+
+        // Like buttons
+        let buttons = document.querySelectorAll(".like-btn");
+        buttons.forEach(function (btn) {
+            btn.addEventListener("click", function (e) {
+                e.preventDefault();
+                let postId = this.dataset.postId;
+                let url = `/home/like/${postId}/`;
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCSRFToken(),
+                        "Content-Type": "application/json"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update count
+                    this.querySelector(".like-count").innerText = data.count;
+                    // Update icon
+                    let icon = this.querySelector("i");
+                    if (data.liked) {
+                        icon.classList.remove("fa-regular");
+                        icon.classList.add("fa-solid", "text-danger");
+                    } else {
+                        icon.classList.remove("fa-solid", "text-danger");
+                        icon.classList.add("fa-regular");
+                    }
+                });
+            });
+        });
+
+        // Copy link
+        function copyLink(url) {
+            navigator.clipboard.writeText(url)
+                .then(() => alert('Link copied to clipboard!'))
+                .catch(err => console.error(err));
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Find Friends</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+  <style>
+    .title {
+      padding: 4px;
+      font-size: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+
+    .nothing {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: contain;
+    }
+    .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            border-top: 1px solid #ddd;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .bottom-nav a {
+            color: black;
+            text-decoration: none;
+            font-size: 1.rem;
+        }
+
+    @media (max-width: 576px) {
+
+      .search-form input,
+      .search-form select {
+        width: 50px;
+        /* shrink inputs to fit */
+        font-size: 0.8rem;
+        padding: 0.2rem 0.3rem;
+      }
+
+      .search-form label {
+        font-size: 0.8rem;
+      }
+
+      .search-form button {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.8rem;
+      }
+
+
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <nav class="navbar navbar-light bg-light shadow-sm">
+    <div class="container-fluid mx-lg-5 mx-1">
+      <!-- Brand -->
+      <p class="navbar-brand fw-bold mb-0">Find Friends</p>
+
+      <!-- Navbar form (horizontal, responsive) -->
+      <form class="d-flex align-items-center ms-auto search-form" action="/home/find_friends/" method="post">
+        {%csrf_token %}
+
+        <!-- Min Age -->
+        <div class="d-flex align-items-center me-2">
+          <label for="min_age" class="mb-0 me-1">Min:</label>
+          <input type="number" id="min_age" name="min_age" min="17" max="58" required
+            class="form-control form-control-sm">
+        </div>
+
+        <!-- Max Age -->
+        <div class="d-flex align-items-center me-2">
+          <label for="max_age" class="mb-0 me-1">Max:</label>
+          <input type="number" id="max_age" name="max_age" min="18" max="59" required
+            class="form-control form-control-sm">
+        </div>
+
+        <!-- Gender -->
+        <div class="d-flex align-items-center me-2">
+          <label for="gender" class="mb-0 me-1">Gender:</label>
+          <select name="gender" id="gender" class="form-select form-select-sm" required>
+            <option value="all">All</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <!-- Submit button -->
+        <button class="btn btn-primary btn-sm" type="submit">Search</button>
+
+      </form>
+    </div>
+  </nav>
+  {% if is_friend %}
+  {% if friends %}
+  <div class="container mt-3">
+    {% for friend in friends %}
+    <a href="/home/profile/{{friend.username}}" class="text-decoration-none">
+      <div class="row mt-3 align-items-center p-2 border rounded shadow-sm bg-white">
+
+        <div class="col-md-1 col-2 text-center">
+          <img src="/media/{{friend.profile_image}}" class="nothing">
+        </div>
+
+        <div class="col-md-6 col-10">
+          <p class="mb-0 fw-bold text-dark">{{friend.username}}</p>
+          <p class="mb-0 text-muted small">{{friend.name}}</p>
+        </div>
+
+      </div>
+    </a>
+    {% endfor %}
+
+  </div>
+  {% else %}
+  <div class="container">
+    <p class="mb-0 fw-bold text-dark mx-3 my-3">No User Found</p>
+  </div>
+  {% endif %}
+  {% endif %}
+  <div class="bottom-nav d-flex justify-content-around align-items-center d-md-none">
+
+    <a href="/home" class="text-dark text-center">
+      <i class="fa-solid fa-house fs-5"></i>
+    </a>
+
+    <a href="/home/search" class="text-dark text-center">
+      <i class="fa-solid fa-magnifying-glass fs-5"></i>
+    </a>
+
+    <a href="/home/post/" class="text-dark text-center">
+      <i class="fa-solid fa-square-plus fs-5"></i>
+    </a>
+
+    <a href="/home/request" class="text-dark text-center">
+      <i class="fa-regular fa-heart fs-5"></i>
+    </a>
+
+    <a href="/home/profile/{{ user.username }}" class="text-dark text-center">
+      <i class="fa-regular fa-user fs-5"></i>
+    </a>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+
+</html>
