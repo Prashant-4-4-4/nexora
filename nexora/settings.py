@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-psu6gqb=*%cf*cs#fatw^fve%l*ijxcc%y3&by31z=w-(lf=ce
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["nexora-mrxp.onrender.com"]
 
 
 # Application definition
