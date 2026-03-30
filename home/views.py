@@ -8,7 +8,7 @@ from datetime import date
 def home(request):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
     
     user = User.objects.get(id=user_id)
 
@@ -26,7 +26,7 @@ def home(request):
 def search(request):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
     users = []
     is_user = False
     if request.method == 'POST':
@@ -46,7 +46,7 @@ def calculate_age(dob):
 def profile(request, username):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
 
     user = User.objects.get(id=user_id)
     profile_user = User.objects.get(username=username)
@@ -86,7 +86,7 @@ def request(request):
     
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
 
     user = User.objects.get(id=user_id)
 
@@ -119,19 +119,19 @@ def logout(request):
     user_id = request.session.get('user_id')
     
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
     
     # Remove user_id from session
     if 'user_id' in request.session:
         del request.session['user_id']
     
-    return redirect('/login/')
+    return redirect('/')
 
 
 def message_list(request):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
     sender = get_object_or_404(User, id=user_id)
     chat_data = []
     conversations = Conversation.objects.filter(participants=sender)
@@ -154,7 +154,7 @@ def message_list(request):
 def can_message(request, username):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
 
     # Get sender and receiver
     sender = get_object_or_404(User, id=user_id)
@@ -209,7 +209,7 @@ def can_message(request, username):
 def post(request):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
 
     user = User.objects.get(id=user_id)
 
@@ -236,7 +236,7 @@ def post(request):
 def post_detail(request, post_id):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
     post = get_object_or_404(Post, id=post_id)
     return render(request, "home/post_detail.html", {"post": post})
 
@@ -245,7 +245,7 @@ def post_detail(request, post_id):
 def like_post(request,post_id) :
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
 
     
     user = User.objects.get(id=user_id)
@@ -268,7 +268,7 @@ def like_post(request,post_id) :
 def comment_post(request, post_id):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
 
     user = User.objects.get(id=user_id)
     post = get_object_or_404(Post, id=post_id)
@@ -297,7 +297,7 @@ def comment_post(request, post_id):
 def edit_profile(request) :
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
 
     user = User.objects.get(id=user_id)
     if request.method == "POST":
@@ -329,7 +329,7 @@ def is_discoverable(request) :
 
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
 
     user = User.objects.get(id=user_id)
     if request.method == "POST":
@@ -346,7 +346,7 @@ def is_discoverable(request) :
 def find_friends(request):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
 
     friends = []
     is_friend = False
@@ -380,7 +380,7 @@ def followers_list(request,username) :
 
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
     
     user = User.objects.get(id=user_id)
     profile_user = get_object_or_404(User, username=username)
@@ -404,7 +404,7 @@ def following_list(request, username):
 
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/?next=/home/')
+        return redirect('/')
     
     user = User.objects.get(id=user_id)
     profile_user = get_object_or_404(User, username=username)
@@ -429,7 +429,7 @@ def following_list(request, username):
 def remove_follower(request, username):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/')
+        return redirect('/')
     
     user = User.objects.get(id=user_id)  
     follower = get_object_or_404(User, username=username)  
@@ -443,7 +443,7 @@ def remove_follower(request, username):
 def unfollow_user(request, username):
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/')
+        return redirect('/')
     
     user = User.objects.get(id=user_id)  
     following_user = get_object_or_404(User, username=username)  
