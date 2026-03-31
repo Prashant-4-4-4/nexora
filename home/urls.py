@@ -22,5 +22,6 @@ urlpatterns = [
     path('following/<str:username>/', views.following_list, name='following_list'),
     path('remove-follower/<str:username>/', views.remove_follower, name='remove_follower'),
     path('unfollow-user/<str:username>/', views.unfollow_user, name='unfollow_user'),
+    path('delete-account/', views.delete_account, name='delete_account')
 
 ]

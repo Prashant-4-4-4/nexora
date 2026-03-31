@@ -4,6 +4,7 @@ from django.contrib import messages
 from home.models import User,Message,Conversation, Post, PostImage, PostVideo, Like, Comment
 from django.db.models import Q
 from datetime import date
+from django.contrib.auth import logout
 
 def home(request):
     user_id = request.session.get('user_id')
@@ -14,13 +15,16 @@ def home(request):
 
     posts = Post.objects.all().order_by("-id").prefetch_related('likes')
 
+    visible_posts = []
     for post in posts:
         post.is_liked = post.likes.filter(user=user).exists()
         post.is_follower = user in post.user.followers.all()
+        if not post.user.is_private or post.is_follower or post.user == user:
+            visible_posts.append(post)
 
     return render(request, "home/home.html", {
         "user": user,
-        "posts": posts,
+        "posts": visible_posts,
     })
 
 def search(request):
@@ -453,3 +457,22 @@ def unfollow_user(request, username):
         following_user.followers.remove(user)  
 
     return redirect('following_list', username=user.username)
+
+
+def delete_account(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('/')
+     
+    if request.method == "POST":
+        password = request.POST.get("password")
+        user = get_object_or_404(User, id=user_id)
+
+        if user.check_password(password):
+            logout(request)
+            user.delete()
+            return redirect("/")
+        else:
+            messages.warning(request, "Incorrect password")
+
+    return render(request, "home/delete.html")

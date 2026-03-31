@@ -12,7 +12,7 @@ class User(models.Model):
     following = models.ManyToManyField("self", symmetrical=False, related_name="user_following", blank=True)
     requests = models.ManyToManyField("self", symmetrical=False, related_name="requests_sent", blank=True)
     password = models.CharField(max_length=128)  
-    bio = models.CharField(null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
     gender = models.CharField(max_length=20, null=True, blank=True)
     discoverable = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
@@ -33,13 +33,14 @@ class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Conversation {self.id}"
+        usernames = ", ".join([user.username for user in self.participants.all()])
+        return f"Conversation {self.id} : {usernames}"
 
 
 
 class Message(models.Model):
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
-    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='sender_name')
 
     message = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='chat_images/', blank=True, null=True)
@@ -49,7 +50,9 @@ class Message(models.Model):
     is_read = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.sender} - {self.message[:20]}"
+        sender_name = self.sender.username if self.sender else "Deleted User"
+        content = self.message[:20] if self.message else "Media"
+        return f"{sender_name} - {content}"
     
 
 class Post(models.Model):

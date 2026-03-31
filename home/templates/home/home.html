@@ -122,12 +122,13 @@
       <a href="/home/messages" class="text-dark text-decoration-none">Messages</a>
       <a href="/home/post" class="text-dark text-decoration-none">Post</a>
       <a href="/home/request" class="text-dark text-decoration-none">Requests</a>
-      <a href="/home/profile/{{ user.username }}" class="text-dark text-decoration-none">Profile</a>
       <a href="/home/find_friends/" class="text-dark text-decoration-none">Find-Friends</a>
-
+      <a href="/home/profile/{{ user.username }}" class="text-dark text-decoration-none">Profile</a>
       <a role="button" class="text-dark text-decoration-none" data-bs-toggle="modal"
         data-bs-target="#helpModal">Help</a>
 
+      <a href="/home/delete-account/" class="btn btn-danger btn-sm text-white px-2 py-1" title="Delete Account">delete
+      </a>
 
       <form action="/home/logout" method="post" class="ms-2">
         {% csrf_token %}
@@ -146,8 +147,13 @@
           <i class="fa-solid fa-user-plus fs-5"></i>
         </a>
 
+
+
         <a role="button" class="text-dark" data-bs-toggle="modal" data-bs-target="#helpModal"><i
             class="fa-solid fa-circle-question fs-5"></i> </a>
+
+        <a href="/home/delete-account/" class="btn btn-danger btn-sm p-1" title="Delete Account"><i
+            class="fa-solid fa-trash"></i></a>
 
         <form action="/home/logout" method="post" class="m-0">
           {% csrf_token %}
@@ -176,10 +182,8 @@
     <!-- Posts -->
     <div class="row justify-content-center">
       <div class="col-lg-6">
-        {% with showed_posts=False %}
+        {% if posts %}
         {% for post in posts %}
-        {% if not post.user.is_private or post.is_follower or user == post.user %}
-        {% with showed_posts=True %}
         <div class="post-card">
           <!-- Post Header -->
           <div class="post-header">
@@ -203,7 +207,7 @@
 
           <!-- Post Actions -->
           <div class="post-actions d-flex gap-3">
-            <!-- like button for each post -->
+            <!-- Like Button -->
             <button class="btn btn-light btn-sm like-btn" data-post-id="{{ post.id }}">
               {% if post.is_liked %}
               <i class="fa-solid fa-heart text-danger"></i>
@@ -212,55 +216,11 @@
               {% endif %}
               <span class="like-count">{{ post.likes.count }}</span>
             </button>
+
+            <!-- Comment Button -->
             <a href="/home/comment/{{ post.id }}" class="btn btn-light btn-sm">
               <i class="fa-regular fa-comment"></i> {{ post.comments.count }} Comment
             </a>
-
-            <!-- Share button -->
-            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#shareModal{{ post.id }}">
-              <i class="fa-solid fa-share"></i> Share
-            </button>
-
-            <!-- Modal -->
-            <div class="modal fade" id="shareModal{{ post.id }}" tabindex="-1"
-              aria-labelledby="shareModalLabel{{ post.id }}" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="shareModalLabel{{ post.id }}">Share Post</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-
-                  <div class="modal-body">
-                    <!-- Copy Link -->
-                    <button class="btn btn-light w-100 mb-2"
-                      onclick="copyLink('{{ request.build_absolute_uri }}post/{{ post.id }}/')">
-                      <i class="fa-solid fa-link"></i> Copy Link
-                    </button>
-
-                    <!-- WhatsApp -->
-                    <a class="btn btn-success w-100 mb-2 text-white"
-                      href="https://wa.me/?text={{ request.build_absolute_uri }}post/{{ post.id }}/">
-                      <i class="fa-brands fa-whatsapp"></i> WhatsApp
-                    </a>
-
-                    <!-- Twitter -->
-                    <a class="btn btn-info w-100 mb-2 text-white"
-                      href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}post/{{ post.id }}/">
-                      <i class="fa-brands fa-twitter"></i> Twitter
-                    </a>
-
-                    <!-- Facebook -->
-                    <a class="btn btn-primary w-100 mb-2"
-                      href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}post/{{ post.id }}/">
-                      <i class="fa-brands fa-facebook"></i> Facebook
-                    </a>
-                  </div>
-
-                </div>
-              </div>
-            </div>
           </div>
 
           <!-- Post Caption -->
@@ -268,19 +228,22 @@
             <strong>{{ post.user.username }}</strong> {{ post.title }}
           </div>
         </div>
-        {% endwith %}
-        {% endif %}
         {% endfor %}
-        {% if not showed_posts %}
+
+        <!-- End of Feed Message -->
+        <div class="card text-center mt-4 p-4 bg-light border-0">
+          <i class="fa-solid fa-flag-checkered fs-2 mb-2 text-secondary"></i>
+          <p class="mb-1 fw-semibold">You’ve reached the end of your feed!</p>
+          <small class="text-muted">Follow more users to discover interesting posts and stay inspired.</small>
+        </div>
+
+        {% else %}
         <div class="card text-center mt-4 p-4 bg-light">
           <i class="fa-regular fa-face-smile fs-1 mb-2"></i>
           <p class="mb-0">Oops! No posts are visible right now.</p>
           <small class="text-muted">Follow some users to see their posts.</small>
         </div>
         {% endif %}
-        {% endwith %}
-
-
       </div>
     </div>
 
