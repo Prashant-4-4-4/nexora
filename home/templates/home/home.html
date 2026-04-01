@@ -221,6 +221,53 @@
             <a href="/home/comment/{{ post.id }}" class="btn btn-light btn-sm">
               <i class="fa-regular fa-comment"></i> {{ post.comments.count }} Comment
             </a>
+
+            <!-- Share Button -->
+            <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#shareModal{{ post.id }}"><i
+                class="fa-solid fa-share"></i> Share</button>
+
+            <!-- Share Modal -->
+            <div class="modal fade" id="shareModal{{ post.id }}" tabindex="-1">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content p-3">
+                  <h5>Share this post</h5>
+
+                  <input type="text" id="postLink{{ post.id }}"
+                    value="{{ request.scheme }}://{{ request.get_host }}/home/post/{{ post.id }}"
+                    class="form-control my-2" readonly>
+
+                  <div class="d-grid gap-2 mt-2">
+
+                    <div class="d-grid gap-2 mt-2">
+                      <button class="btn btn-outline-secondary"
+                        onclick="copyLink('{{ request.scheme }}://{{ request.get_host }}/home/post/{{ post.id }}')">
+                        <i class="fa-solid fa-link me-2"></i> Copy Link
+                      </button>
+                      <!-- WhatsApp -->
+                      <a href="https://wa.me/?text={{ request.scheme }}://{{ request.get_host }}/home/post/{{ post.id }}"
+                        target="_blank" class="btn btn-success">
+                        <i class="fa-brands fa-whatsapp me-2"></i> WhatsApp
+                      </a>
+
+                      <!-- Twitter -->
+                      <a href="https://twitter.com/intent/tweet?url={{ request.scheme }}://{{ request.get_host }}/home/post/{{ post.id }}"
+                        target="_blank" class="btn btn-info text-white">
+                        <i class="fa-brands fa-twitter me-2"></i> Twitter
+                      </a>
+
+                      <!-- Facebook -->
+                      <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.scheme }}://{{ request.get_host }}/home/post/{{ post.id }}"
+                        target="_blank" class="btn btn-primary">
+                        <i class="fa-brands fa-facebook me-2"></i> Facebook
+                      </a>
+
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <!-- Post Caption -->

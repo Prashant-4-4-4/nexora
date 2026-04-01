@@ -28,21 +28,22 @@
     .action-btn {
       min-width: 100px;
     }
-    .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: #fff;
-            border-top: 1px solid #ddd;
-            padding: 10px 0;
-            z-index: 1000;
-        }
 
-        .bottom-nav a {
-            color: black;
-            text-decoration: none;
-            font-size: 1.rem;
-        }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+
+    .bottom-nav a {
+      color: black;
+      text-decoration: none;
+      font-size: 1.rem;
+    }
   </style>
 </head>
 
@@ -57,13 +58,14 @@
   <div class="container mt-4">
     <h5>{{ profile_user.username }}'s Following</h5>
     {% if profile_user_following %}
-      {% for u in profile_user_following %}
-      <a href="/home/profile/{{ u.username }}" class="text-decoration-none text-dark">
-        <div class="row align-items-center p-2 border rounded shadow-sm mb-2 user-card">
-          <div class="col-2 col-md-1 text-center">
-            <img src="/media/{{u.profile_image}}" class="profile-img">
-          </div>
-          <div class="col-10 col-md-6 d-flex justify-content-between align-items-center">
+    {% for u in profile_user_following %}
+    <a href="/home/profile/{{ u.username }}" class="text-decoration-none text-dark">
+      <div class="row align-items-center p-2 border rounded shadow-sm mb-2 user-card">
+        <div class="col-2 col-md-1 text-center">
+          <img src="/media/{{u.profile_image}}" class="profile-img">
+        </div>
+        <div class="col-10 col-md-10">
+          <div class="d-flex justify-content-between align-items-center w-100">
             <div>
               <p class="mb-0 fw-bold">{{ u.username }}</p>
               <p class="mb-0 text-muted small">{{ u.name }}</p>
@@ -76,13 +78,14 @@
             {% endif %}
           </div>
         </div>
-      </a>
-      {% endfor %}
+      </div>
+    </a>
+    {% endfor %}
     {% else %}
-      <h6 class="mt-3">No following found.</h6>
+    <h6 class="mt-3">No following found.</h6>
     {% endif %}
   </div>
-   <div class="bottom-nav d-flex justify-content-around align-items-center d-md-none">
+  <div class="bottom-nav d-flex justify-content-around align-items-center d-md-none">
 
     <a href="/home" class="text-dark text-center">
       <i class="fa-solid fa-house fs-5"></i>

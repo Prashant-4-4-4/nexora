@@ -64,17 +64,19 @@
           <div class="col-2 col-md-1 text-center">
             <img src="/media/{{u.profile_image}}" class="profile-img">
           </div>
-          <div class="col-10 col-md-6 d-flex justify-content-between align-items-center">
-            <div>
-              <p class="mb-0 fw-bold">{{ u.username }}</p>
-              <p class="mb-0 text-muted small">{{ u.name }}</p>
+          <div class="col-10 col-md-10">
+            <div class="d-flex justify-content-between align-items-center w-100">
+              <div>
+                <p class="mb-0 fw-bold">{{ u.username }}</p>
+                <p class="mb-0 text-muted small">{{ u.name }}</p>
+              </div>
+              {% if profile_user == user %}
+              <form method="post" action="{% url 'remove_follower' u.username %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger action-btn">Remove</button>
+              </form>
+              {% endif %}
             </div>
-            {% if profile_user == user %}
-            <form method="post" action="{% url 'remove_follower' u.username %}">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-sm btn-danger action-btn">Remove</button>
-            </form>
-            {% endif %}
           </div>
         </div>
       </a>
