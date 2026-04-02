@@ -152,11 +152,10 @@
 
             <input type="password" class="form-control mb-2" name="confirmpass" placeholder="Confirm Password" required>
 
-            <input type="tel" class="form-control mb-2" name="phone" placeholder="Phone Number" required>
+            <input  type="tel"  class="form-control mb-2"  name="phone"  placeholder="Phone Number"  maxlength="10" pattern="[0-9]{10}"  inputmode="numeric" required>
 
-            <input type="date" class="form-control mb-2" name="dob">
-            <textarea class="form-control mb-2" name="bio" placeholder="Write something about yourself..."
-                maxlength="300"></textarea>
+            <input type="date" class="form-control mb-2" name="dob" placeholder="DOB" required >
+            <textarea class="form-control mb-2" name="bio" placeholder="Write something about yourself..." maxlength="300"></textarea>
 
             <input type="file" class="form-control mb-3" name="profile_img" accept="image/*">
 
