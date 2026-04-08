@@ -15,17 +15,21 @@ def index(request):
         return render(request, "nexora/index.html")
     
     return redirect('home')
+    
+
 
 def login(request):
     if request.method == "POST":
         identifier = request.POST.get('identifier').strip()
         password = request.POST.get('pass').strip()
 
+        # Find user by email or username
         user = User.objects.filter(email=identifier).first()
         if not user:
             user = User.objects.filter(username=identifier).first()
 
         if user and user.check_password(password):
+            # Store user id in session
             request.session['user_id'] = user.id
             messages.success(request, "Login successful!")
             return redirect('home')
@@ -35,24 +39,35 @@ def login(request):
 
     return render(request, "nexora/login.html")
 
+
 def forget_password(request):
+    
     if request.method == "POST" :
         email = request.POST.get('email') 
         user = User.objects.filter(email=email).first()
         if user:
             otp = random.randint(100000, 999999)
 
-            try:
-                send_mail(
-                    subject="Nexora Password Reset OTP",
-                    message=f"OTP: {otp}",
-                    from_email="supportnexora@gmail.com",
-                    recipient_list=[email],
-                    fail_silently=False
-                )
-            except Exception as e:
-                messages.error(request, f"Email failed: {str(e)}")
-                return redirect('forget_password')
+            # Send OTP email
+            send_mail(
+            subject="Nexora Password Reset OTP",
+            message=f"""Hello,
+
+            We received a request to reset the password for your Nexora account. To proceed, please use the OTP below:
+
+            OTP: {otp}
+
+            This OTP is valid for the next 10 minutes. Please do not share it with anyone for your account security.
+
+            If you did not request a password reset, please ignore this email.
+
+            Best regards,
+            The Nexora Team
+            """,
+            from_email="supportnexora@gmail.com",
+            recipient_list=[email],
+            fail_silently=False
+            )
 
             request.session['reset_email'] = email
             request.session['otp'] = str(otp)
@@ -91,10 +106,12 @@ def verify_reset_otp(request):
 
 def change_password(request):
     email = request.session.get('reset_email')
+
     if not email:
         return redirect('forget-password')
 
     user = User.objects.filter(email=email).first()
+
     if request.method == "POST":
         new_pass = request.POST.get('newpass')
         confirm_pass = request.POST.get('confirmpass')
@@ -106,6 +123,7 @@ def change_password(request):
         user.set_password(new_pass)
         user.save()
 
+        # cleanup session
         request.session.pop('otp', None)
         request.session.pop('reset_email', None)
 
@@ -114,6 +132,7 @@ def change_password(request):
 
     return render(request, "nexora/change-pass.html")
 
+# Step 1: Send OTP and show OTP page
 def signup(request):
     if request.method == "POST":
         profile_file = request.FILES.get('profile_img')
@@ -137,10 +156,12 @@ def signup(request):
         else:
             signup_data['profile_image_path'] = None
 
+        # Validate passwords
         if signup_data['password'] != signup_data['password2']:
             messages.warning(request, "Passwords don't match")
             return redirect('signup')
 
+        # Validate username
         if User.objects.filter(username=signup_data['username']).exists():
             messages.warning(request, "Username already exists")
             return redirect('signup')
@@ -151,28 +172,41 @@ def signup(request):
             messages.warning(request, "Username can only contain letters, numbers, and underscores.")
             return redirect('signup')
 
+        # Generate OTP
         otp = random.randint(100000, 999999)
 
-        try:
-            send_mail(
-                subject="Nexora Account Verification OTP",
-                message=f"OTP: {otp}",
-                from_email="supportnexora@gmail.com",
-                recipient_list=[signup_data['email']],
-                fail_silently=False
-            )
-        except Exception as e:
-            messages.error(request, f"Error sending email: {str(e)}")
-            return redirect('signup')
+        # Send OTP email
+        send_mail(
+            subject="Nexora Account Verification OTP",
+            message=f"""Hello,
 
+            Thank you for signing up for Nexora! To complete your account registration, please use the OTP provided below:
+
+            OTP: {otp}
+
+            This OTP is valid for the next 10 minutes. Please do not share it with anyone for your account security.
+
+            If you did not request this, please ignore this email.
+
+            Best regards,
+            The Nexora Team
+            """,
+            from_email="supportnexora@gmail.com",
+            recipient_list=[signup_data['email']],
+            fail_silently=False
+            )
+
+        # Store signup data and OTP in session
         request.session['signup_data'] = signup_data
         request.session['otp'] = str(otp)
-        request.session.set_expiry(450)
+        request.session.set_expiry(450)  # 7.5 minutes
 
         return render(request, "nexora/otp.html")
 
     return render(request, "nexora/signup.html")
 
+
+# Step 2: Verify OTP and create user
 def verify_otp(request):
     if request.method == "POST":
         entered_otp = request.POST.get('enteredOtp')
@@ -191,16 +225,16 @@ def verify_otp(request):
             else:
                 final_path = 'images/default.png'
 
+            # Create user (no logedin field)
             bio = signup_data.get('bio', '')
             bio = bio.replace('\r\n', '\n').replace('\r', '\n')
             bio = "\n".join(line.strip() for line in bio.split("\n") if line.strip())
-            
             user = User(
                 name=signup_data['name'],
                 email=signup_data['email'],
                 username=signup_data['username'],
                 phone=signup_data['phone'],
-                dob=signup_data['dob'] if signup_data['dob'] else None,
+                dob=signup_data['dob'],
                 is_private = signup_data['is_private'],
                 gender = signup_data['gender'],
                 bio = bio,
@@ -209,7 +243,10 @@ def verify_otp(request):
             user.set_password(signup_data['password'])
             user.save()
 
+            # Store user id in session to mark logged in
             request.session['user_id'] = user.id
+
+            # Clear session OTP & signup_data
             request.session.pop('signup_data')
             request.session.pop('otp')
 
