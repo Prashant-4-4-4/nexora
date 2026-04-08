@@ -42,25 +42,17 @@ def forget_password(request):
         if user:
             otp = random.randint(100000, 999999)
 
-            send_mail(
-                subject="Nexora Password Reset OTP",
-                message=f"""Hello,
-
-            We received a request to reset the password for your Nexora account. To proceed, please use the OTP below:
-
-            OTP: {otp}
-
-            This OTP is valid for the next 10 minutes. Please do not share it with anyone for your account security.
-
-            If you did not request a password reset, please ignore this email.
-
-            Best regards,
-            The Nexora Team
-            """,
-                from_email="supportnexora@gmail.com",
-                recipient_list=[email],
-                fail_silently=False
-            )
+            try:
+                send_mail(
+                    subject="Nexora Password Reset OTP",
+                    message=f"OTP: {otp}",
+                    from_email="supportnexora@gmail.com",
+                    recipient_list=[email],
+                    fail_silently=False
+                )
+            except Exception as e:
+                messages.error(request, f"Email failed: {str(e)}")
+                return redirect('forget_password')
 
             request.session['reset_email'] = email
             request.session['otp'] = str(otp)
@@ -99,12 +91,10 @@ def verify_reset_otp(request):
 
 def change_password(request):
     email = request.session.get('reset_email')
-
     if not email:
         return redirect('forget-password')
 
     user = User.objects.filter(email=email).first()
-
     if request.method == "POST":
         new_pass = request.POST.get('newpass')
         confirm_pass = request.POST.get('confirmpass')
@@ -166,23 +156,10 @@ def signup(request):
         try:
             send_mail(
                 subject="Nexora Account Verification OTP",
-                message=f"""Hello,
-
-            Thank you for signing up for Nexora! To complete your account registration, please use the OTP provided below:
-
-            OTP: {otp}
-
-            This OTP is valid for the next 10 minutes. Please do not share it with anyone for your account security.
-
-            If you did not request this, please ignore this email.
-
-            Best regards,
-            The Nexora Team
-            """,
+                message=f"OTP: {otp}",
                 from_email="supportnexora@gmail.com",
                 recipient_list=[signup_data['email']],
-                fail_silently=False,
-                timeout=15
+                fail_silently=False
             )
         except Exception as e:
             messages.error(request, f"Error sending email: {str(e)}")
@@ -233,7 +210,6 @@ def verify_otp(request):
             user.save()
 
             request.session['user_id'] = user.id
-
             request.session.pop('signup_data')
             request.session.pop('otp')
 
