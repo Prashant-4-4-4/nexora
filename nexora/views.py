@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 import re
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.conf import settings
 
 USERNAME_REGEX = r'^[a-zA-Z0-9_]+$'
 
@@ -48,25 +49,13 @@ def forget_password(request):
         if user:
             otp = random.randint(100000, 999999)
 
-            # Send OTP email
+            # Send OTP email using API Backend
             send_mail(
-            subject="Nexora Password Reset OTP",
-            message=f"""Hello,
-
-            We received a request to reset the password for your Nexora account. To proceed, please use the OTP below:
-
-            OTP: {otp}
-
-            This OTP is valid for the next 10 minutes. Please do not share it with anyone for your account security.
-
-            If you did not request a password reset, please ignore this email.
-
-            Best regards,
-            The Nexora Team
-            """,
-            from_email="supportnexora@gmail.com",
-            recipient_list=[email],
-            fail_silently=False
+                subject="Nexora Password Reset OTP",
+                message=f"Hello,\n\nYour OTP for password reset is: {otp}\n\nValid for 10 minutes.",
+                from_email=settings.DEFAULT_FROM_EMAIL, # CHANGED: Uses API sender
+                recipient_list=[email],
+                fail_silently=False
             )
 
             request.session['reset_email'] = email
@@ -175,26 +164,14 @@ def signup(request):
         # Generate OTP
         otp = random.randint(100000, 999999)
 
-        # Send OTP email
+        # Send OTP email using API Backend
         send_mail(
             subject="Nexora Account Verification OTP",
-            message=f"""Hello,
-
-            Thank you for signing up for Nexora! To complete your account registration, please use the OTP provided below:
-
-            OTP: {otp}
-
-            This OTP is valid for the next 10 minutes. Please do not share it with anyone for your account security.
-
-            If you did not request this, please ignore this email.
-
-            Best regards,
-            The Nexora Team
-            """,
-            from_email="supportnexora@gmail.com",
+            message=f"Hello,\n\nYour OTP for Nexora signup is: {otp}\n\nValid for 10 minutes.",
+            from_email=settings.DEFAULT_FROM_EMAIL, # CHANGED: Uses API sender
             recipient_list=[signup_data['email']],
             fail_silently=False
-            )
+        )
 
         # Store signup data and OTP in session
         request.session['signup_data'] = signup_data
@@ -220,12 +197,15 @@ def verify_otp(request):
         if entered_otp == session_otp:
             profile_path = signup_data.get('profile_image_path')
             if profile_path:
-                file_content = default_storage.open(profile_path).read()
-                final_path = default_storage.save(f"images/{profile_path.split('/')[-1]}", ContentFile(file_content))
+                try:
+                    file_content = default_storage.open(profile_path).read()
+                    final_path = default_storage.save(f"images/{profile_path.split('/')[-1]}", ContentFile(file_content))
+                except:
+                    final_path = 'images/default.png'
             else:
                 final_path = 'images/default.png'
 
-            # Create user (no logedin field)
+            # Create user
             bio = signup_data.get('bio', '')
             bio = bio.replace('\r\n', '\n').replace('\r', '\n')
             bio = "\n".join(line.strip() for line in bio.split("\n") if line.strip())
@@ -243,10 +223,7 @@ def verify_otp(request):
             user.set_password(signup_data['password'])
             user.save()
 
-            # Store user id in session to mark logged in
             request.session['user_id'] = user.id
-
-            # Clear session OTP & signup_data
             request.session.pop('signup_data')
             request.session.pop('otp')
 
