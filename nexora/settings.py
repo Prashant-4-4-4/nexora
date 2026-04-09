@@ -1,20 +1,14 @@
 from pathlib import Path
 import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# On Render, add a Secret File or Environment Variable for SECRET_KEY
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-psu6gqb=*%cf*cs#fatw^fve%l*ijxcc%y3&by31z=w-(lf=ce')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-# Set DEBUG to False in Render Environment Variables for safety
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ["nexora-mrxp.onrender.com", "localhost", "127.0.0.1"]
 
-# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,12 +17,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'home',
-    'anymail',  # Added for Resend API
+    'anymail',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Recommended for Render static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -56,7 +50,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'nexora.wsgi.application'
 
-# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -64,7 +57,6 @@ DATABASES = {
     }
 }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
@@ -72,26 +64,22 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Added for production
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# Project login redirect
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/home/'
 
-
-EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
-DEFAULT_FROM_EMAIL = "Nexora <onboarding@resend.dev>"
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+DEFAULT_FROM_EMAIL = "Nexora <supportnexora@gmail.com>"
 
 ANYMAIL = {
-    "RESEND_API_KEY": os.environ.get("RESEND_API_KEY"),
+    "BREVO_API_KEY": os.environ.get("BREVO_API_KEY"),
 }
