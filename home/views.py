@@ -31,6 +31,7 @@ def search(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('/')
+    user = User.objects.get(id=user_id)
     users = []
     is_user = False
     if request.method == 'POST':
@@ -38,7 +39,7 @@ def search(request):
         users = User.objects.filter(Q(username__icontains=query))
         is_user = True
 
-    return render(request, "home/search.html", {"users": users , "is_user" : is_user})
+    return render(request, "home/search.html", {"users": users , "is_user" : is_user, "user":user})
 
 
 
