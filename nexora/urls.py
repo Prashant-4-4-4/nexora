@@ -30,4 +30,4 @@ urlpatterns = [
     path('verify-otp/', views.verify_otp, name='verify_otp'),
     path('verify-reset-otp/', views.verify_reset_otp, name='verify_reset_otp'),
     path('home/', include('home.urls')),
-]+ static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
