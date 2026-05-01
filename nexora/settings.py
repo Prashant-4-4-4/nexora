@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-psu6gqb=*%cf*cs#fatw^fve%l*ijxcc%y3&by31z=w-(lf=ce')
 
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ["nexora-mrxp.onrender.com", "localhost", "127.0.0.1"]
 
